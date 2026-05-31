@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reforço Escolar-Tembe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ===== ECRÃ DE LOGIN ===== -->
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="images/logo.png" alt="Logo" style="width:110px;height:110px;object-fit:contain;"/>
+      <h1>Reforço Escolar-Tembe</h1>
+      <p>Sistema de Gestão</p>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Utilizador</label>
+        <input type="text" id="login-user" placeholder="Augusto Tembe" autocomplete="username"/>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') fazerLogin()"/>
+      </div>
+      <div id="login-erro" class="login-erro" style="display:none">❌ Utilizador ou senha incorrectos.</div>
+      <button class="btn-primary btn-full" onclick="fazerLogin()">🔐 Entrar</button>
+    </div>
+    <div class="login-footer">Sistema v1.0 · Reforço Escolar Tembe</div>
+  </div>
+</div>
+
+<!-- ===== APP (escondida até login) ===== -->
+<div id="app" style="display:none; width:100%;">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <img src="images/logo.png" alt="Logo" style="width:38px;height:38px;object-fit:contain;"/>
+    <span class="logo-text">Reforço Escolar</span>
+  </div>
+  <div class="admin-badge">
+    <span class="admin-avatar">👤</span>
+    <div>
+      <div class="admin-nome" id="admin-nome-sidebar">Augusto Tembe</div>
+      <div class="admin-sub" id="admin-nivel-sidebar">Administrador</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showPage('dashboard')">
+      <span>📊</span> Painel Principal
+    </button>
+    <button class="nav-btn" onclick="showPage('inscricao')">
+      <span>📝</span> Nova Inscrição
+    </button>
+    <button class="nav-btn" onclick="showPage('estudantes')">
+      <span>🗂️</span> Lista de Estudantes
+    </button>
+    <button class="nav-btn" onclick="showPage('mensalidades')">
+      <span>💰</span> Mensalidades
+    </button>
+    <button class="nav-btn" id="nav-relatorio" onclick="showPage('relatorio')">
+      <span>📄</span> Relatório
+    </button>
+  </nav>
+  <div class="sidebar-footer-wrap">
+    <button class="btn-logout" onclick="fazerLogout()">🚪 Sair</button>
+    <div class="sidebar-footer">Sistema v1.0</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <section id="page-dashboard" class="page active">
+  <div class="page-header">
+    <h1>Painel Principal</h1>
+    <span class="date-badge" id="date-now"></span>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">👨‍🎓</div>
+      <div class="stat-info">
+        <span class="stat-num" id="total-alunos">0</span>
+        <span class="stat-label">Total Inscritos</span>
+      </div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-info">
+        <span class="stat-num" id="total-pagos">0</span>
+        <span class="stat-label">Mensalidades Pagas</span>
+      </div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-info">
+        <span class="stat-num" id="total-pendentes">0</span>
+        <span class="stat-label">Pagamentos Pendentes</span>
+      </div>
+    </div>
+    <div class="stat-card stat-gold" id="card-receita">
+      <div class="stat-icon">💵</div>
+      <div class="stat-info">
+        <span class="stat-num" id="total-receita">0 MT</span>
+        <span class="stat-label">Receita Total</span>
+      </div>
+    </div>
+  </div>
+  <div id="dash-locais" class="locais-grid"></div>
+</section>
+
+  <!-- INSCRIÇÃO -->
+  <section id="page-inscricao" class="page">
+    <div class="page-header">
+      <h1>Nova Inscrição</h1>
+    </div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="inp-nome" placeholder="Ex: Maria José Silva"/>
+        </div>
+        <div class="form-group">
+          <label>Local *</label>
+          <select id="inp-local">
+            <option value="">-- Selecionar Local --</option>
+            <option value="Maxaquene">Maxaquene</option>
+            <option value="Chamanculo">Chamanculo</option>
+            <option value="Jorge Dimitrov">Jorge Dimitrov</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Curso / Classe *</label>
+          <select id="inp-curso">
+          <option value="">-- Selecionar --</option>
+<option>1ª Classe</option>
+<option>2ª Classe</option>
+<option>3ª Classe</option>
+<option>4ª Classe</option>
+<option>5ª Classe</option>
+<option>6ª Classe</option>
+<option>7ª Classe</option>
+<option>8ª Classe</option>
+<option>9ª Classe</option>
+<option>10ª Classe</option>
+<option>11ª Classe</option>
+<option>12ª Classe</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="text" id="inp-tel" placeholder="+258 8X XXX XXXX"/>
+        </div>
+        <div class="form-group">
+          <label>Valor de Inscrição (MT) *</label>
+          <input type="number" id="inp-valor-inscricao" placeholder="Ex: 500"/>
+        </div>
+        <div class="form-group">
+          <label>Valor Mensal (MT) *</label>
+          <input type="number" id="inp-mensalidade" placeholder="Ex: 1500"/>
+        </div>
+        <div class="form-group">
+          <label>Data de Inscrição</label>
+          <input type="date" id="inp-data"/>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <textarea id="inp-obs" rows="3" placeholder="Notas adicionais..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="limparForm()">🗑️ Limpar</button>
+        <button class="btn-primary" onclick="registarAluno()">✅ Registar Inscrição</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA DE ESTUDANTES -->
+  <section id="page-estudantes" class="page">
+    <div class="page-header">
+      <h1>Lista de Estudantes</h1>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <select class="search-box" id="filtro-local" onchange="filtrarTabela()" style="max-width:180px">
+          <option value="">Todos os Locais</option>
+          <option value="Maxaquene">Maxaquene</option>
+          <option value="Chamanculo">Chamanculo</option>
+          <option value="Jorge Dimitrov">Jorge Dimitrov</option>
+        </select>
+        <input type="text" class="search-box" id="busca-matricula" placeholder="🔍 Pesquisar por nome..." oninput="filtrarTabela()"/>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="tbl-matriculas">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Curso</th>
+            <th>Local</th>
+            <th>Telefone</th>
+            <th>Inscrição (MT)</th>
+            <th>Mensalidade (MT)</th>
+            <th>Data / Hora</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-matriculas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MENSALIDADES -->
+  <section id="page-mensalidades" class="page">
+    <div class="page-header">
+      <h1>Gestão de Mensalidades</h1>
+      <select class="search-box" id="filtro-local-mens" onchange="renderizarMensalidades()" style="max-width:200px">
+        <option value="">Todos os Locais</option>
+        <option value="Maxaquene">Maxaquene</option>
+        <option value="Chamanculo">Chamanculo</option>
+        <option value="Jorge Dimitrov">Jorge Dimitrov</option>
+      </select>
+    </div>
+    <div class="mensalidade-grid" id="lista-mensalidades"></div>
+  </section>
+
+  <!-- RELATÓRIO -->
+  <section id="page-relatorio" class="page">
+    <div class="page-header">
+      <h1>Relatório Financeiro</h1>
+      <div style="display:flex;gap:10px">
+        <select class="search-box" id="filtro-local-rel" onchange="renderizarRelatorio()" style="max-width:200px">
+          <option value="">Todos os Locais</option>
+          <option value="Maxaquene">Maxaquene</option>
+          <option value="Chamanculo">Chamanculo</option>
+          <option value="Jorge Dimitrov">Jorge Dimitrov</option>
+        </select>
+        <button class="btn-primary" onclick="imprimirRelatorio()">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <div class="relatorio-box" id="relatorio-conteudo"></div>
+  </section>
+
+</main>
+</div><!-- fim #app -->
+
+<!-- MODAL RECIBO -->
+<div class="modal-overlay" id="modal-recibo" onclick="fecharModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="recibo" id="recibo-conteudo"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="fecharModal()">Fechar</button>
+      <button class="btn-primary" onclick="window.print()">🖨️ Imprimir Recibo</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
