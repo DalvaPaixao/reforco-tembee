@@ -524,6 +524,81 @@ function imprimirRelatorio() {
   window.print();
 }
 
+// ===== RETIRADAS =====
+
+let retiradas = [];
+
+function registarRetirada() {
+
+  const valor = parseFloat(document.getElementById('retirada-valor').value);
+  const data = document.getElementById('retirada-data').value;
+  const motivo = document.getElementById('retirada-motivo').value.trim();
+
+  if (!valor || !data || !motivo) {
+    mostrarToast('⚠️ Preencha todos os campos!', 'error');
+    return;
+  }
+
+  retiradas.push({
+    valor,
+    data,
+    motivo
+  });
+
+  renderizarRetiradas();
+
+  document.getElementById('retirada-valor').value = '';
+  document.getElementById('retirada-data').value = '';
+  document.getElementById('retirada-motivo').value = '';
+
+  mostrarToast('✅ Retirada registada com sucesso!');
+}
+
+function renderizarRetiradas() {
+
+  const tbody = document.getElementById('tbody-retiradas');
+
+  if (!tbody) return;
+
+  let total = 0;
+
+  tbody.innerHTML = retiradas.map((r, i) => {
+
+    total += r.valor;
+
+    return `
+      <tr>
+        <td>${r.data}</td>
+        <td>${r.motivo}</td>
+        <td>${formatarMt(r.valor)}</td>
+        <td>
+          <button class="btn-icon danger"
+            onclick="eliminarRetirada(${i})">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const totalEl = document.getElementById('total-retiradas');
+
+  if (totalEl) {
+    totalEl.textContent = formatarMt(total);
+  }
+}
+
+function eliminarRetirada(index) {
+
+  if (!confirm('Eliminar esta retirada?')) return;
+
+  retiradas.splice(index, 1);
+
+  renderizarRetiradas();
+
+  mostrarToast('🗑️ Retirada removida');
+}
+
 // ===== UTILITÁRIOS =====
 function formatarMt(valor) {
   if (isNaN(valor)) return '0,00 MT';
