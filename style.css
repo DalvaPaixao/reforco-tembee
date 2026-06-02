@@ -713,3 +713,128 @@ textarea { resize: vertical; min-height: 80px; }
   color: var(--text-muted);
 }
 .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
+
+/* ===== RESPONSIVO PARA CELULAR ===== */
+@media (max-width: 768px) {
+
+  #app {
+    flex-direction: column;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    padding: 15px;
+  }
+
+  nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    flex: 1 1 45%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Conteúdo principal */
+  .main {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  /* Títulos */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Cards */
+  .stats-grid,
+  .locais-grid,
+  .mensalidade-grid,
+  .rel-sumario {
+    grid-template-columns: 1fr;
+  }
+
+  /* Formulários */
+  .form-card,
+  .relatorio-box {
+    padding: 18px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tabelas */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 700px;
+  }
+
+  /* Pesquisa */
+  .search-box {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Modal */
+  .modal {
+    width: 95%;
+    min-width: auto;
+    padding: 20px;
+  }
+
+  /* Recibo */
+  .recibo {
+    padding: 15px;
+  }
+
+  .recibo-linha,
+  .recibo-total {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  /* Login */
+  .login-card {
+    padding: 25px 20px;
+  }
+
+  .login-logo h1 {
+    font-size: 1.5rem;
+  }
+
+  /* Toast */
+  .toast {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+  }
+}
