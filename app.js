@@ -7,7 +7,7 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 // ===== CREDENCIAIS =====
 const UTILIZADORES = [
   { user: 'Augusto Tembe', pass: '1234567891011', nivel: 'admin' },
-  { user: 'atendente',     pass: 'tembe2025',     nivel: 'atendente' }
+  { user: 'atendente',     pass: 'escolar2026',     nivel: 'atendente' }
 ];
 
 // ===== ESTADO GLOBAL =====
