@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-
+ 
 <!-- ===== ECRÃ DE LOGIN ===== -->
 <div id="login-screen" class="login-screen">
   <div class="login-card">
@@ -32,10 +32,10 @@
     <div class="login-footer">Sistema v1.0 · Reforço Escolar Tembe</div>
   </div>
 </div>
-
+ 
 <!-- ===== APP (escondida até login) ===== -->
 <div id="app" style="display:none; width:100%;">
-
+ 
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="logo">
@@ -71,10 +71,10 @@
     <div class="sidebar-footer">Sistema v1.0</div>
   </div>
 </aside>
-
+ 
 <!-- MAIN -->
 <main class="main">
-
+ 
   <!-- DASHBOARD -->
   <section id="page-dashboard" class="page active">
   <div class="page-header">
@@ -113,7 +113,7 @@
   </div>
   <div id="dash-locais" class="locais-grid"></div>
 </section>
-
+ 
   <!-- INSCRIÇÃO -->
   <section id="page-inscricao" class="page">
     <div class="page-header">
@@ -179,7 +179,7 @@
       </div>
     </div>
   </section>
-
+ 
   <!-- LISTA DE ESTUDANTES -->
   <section id="page-estudantes" class="page">
     <div class="page-header">
@@ -213,7 +213,7 @@
       </table>
     </div>
   </section>
-
+ 
   <!-- MENSALIDADES -->
   <section id="page-mensalidades" class="page">
     <div class="page-header">
@@ -227,7 +227,7 @@
     </div>
     <div class="mensalidade-grid" id="lista-mensalidades"></div>
   </section>
-
+ 
   <!-- RELATÓRIO -->
   <section id="page-relatorio" class="page">
     <div class="page-header">
@@ -244,10 +244,10 @@
     </div>
     <div class="relatorio-box" id="relatorio-conteudo"></div>
   </section>
-
+ 
 </main>
 </div><!-- fim #app -->
-
+ 
 <!-- MODAL RECIBO -->
 <div class="modal-overlay" id="modal-recibo" onclick="fecharModal()">
   <div class="modal" onclick="event.stopPropagation()">
@@ -258,10 +258,12 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
-
+ 
+<!-- ✅ LINHA ADICIONADA: biblioteca do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
