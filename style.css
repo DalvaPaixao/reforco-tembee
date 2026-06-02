@@ -11,7 +11,6 @@
   --accent-light: #e3f2fd;
   --green: #2e7d32;
   --red: #c62828;
-  --orange: #f7a800;
   --text: #1a2a3a;
   --text-muted: #5a7a9a;
   --font-display: 'Playfair Display', serif;
@@ -19,6 +18,8 @@
   --radius: 14px;
   --shadow: 0 4px 20px rgba(33,150,243,0.10);
   --shadow-sm: 0 2px 8px rgba(33,150,243,0.07);
+  --laranja: #F5A623;
+  --laranja-dark: #d4891a;
 }
 
 body {
@@ -77,17 +78,16 @@ body {
   font-weight: 500;
 }
 
-/* BOTÃO ENTRAR — laranja do logo */
+/* ===== BOTÃO ENTRAR (login) — LARANJA ===== */
 .btn-full {
   width: 100%;
   justify-content: center;
   padding: 13px;
   font-size: 1rem;
-  background: linear-gradient(135deg, #f7a800, #e09000) !important;
-  border: none !important;
-  color: #fff !important;
+  background: linear-gradient(135deg, var(--laranja), var(--laranja-dark)) !important;
+  border-color: transparent !important;
 }
-.btn-full:hover { opacity: 0.92; transform: translateY(-1px); }
+.btn-full:hover { opacity: 0.9; transform: translateY(-1px); }
 
 .login-footer {
   text-align: center;
@@ -130,20 +130,20 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* BADGE ADMIN — laranja do logo */
+/* ===== BADGE DO ADMINISTRADOR — LARANJA ===== */
 .admin-badge {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--orange);
+  background: var(--laranja);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(247,168,0,0.35);
+  box-shadow: 0 3px 10px rgba(245,166,35,0.4);
 }
 .admin-avatar { font-size: 1.4rem; }
 .admin-nome { font-size: 0.85rem; font-weight: 700; color: #fff; }
-.admin-sub { font-size: 0.72rem; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.admin-sub { font-size: 0.72rem; color: rgba(255,255,255,0.8); margin-top: 1px; }
 
 nav { display: flex; flex-direction: column; gap: 5px; flex: 1; }
 
@@ -179,9 +179,9 @@ nav { display: flex; flex-direction: column; gap: 5px; flex: 1; }
   gap: 8px;
 }
 
-/* BOTÃO SAIR — laranja do logo */
+/* ===== BOTÃO SAIR — LARANJA ===== */
 .btn-logout {
-  background: var(--orange);
+  background: var(--laranja);
   border: none;
   color: #fff;
   font-family: var(--font-body);
@@ -192,9 +192,9 @@ nav { display: flex; flex-direction: column; gap: 5px; flex: 1; }
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
-  box-shadow: 0 2px 8px rgba(247,168,0,0.3);
+  box-shadow: 0 2px 8px rgba(245,166,35,0.35);
 }
-.btn-logout:hover { background: #e09000; color: #fff; }
+.btn-logout:hover { background: var(--laranja-dark); }
 
 .sidebar-footer {
   font-size: 0.72rem;
