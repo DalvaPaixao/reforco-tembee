@@ -1,3 +1,9 @@
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://vzkzovpkzqoupbgbwgtu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_CaAYIgSEafPrrlRFpUFR3g_TMln7Ftf';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ===== CREDENCIAIS =====
 const UTILIZADORES = [
   { user: 'Augusto Tembe', pass: '1234567891011', nivel: 'admin' },
@@ -13,15 +19,15 @@ const COR_LOCAIS = {
   'Jorge Dimitrov':'#b45309'
 };
 
-let alunos      = JSON.parse(localStorage.getItem('tembe_alunos')   || '[]');
-let contadorId  = parseInt(localStorage.getItem('tembe_contador')   || '1');
-let nivelActual = ''; // 'admin' ou 'atendente'
+let alunos      = [];
+let contadorId  = 1;
+let nivelActual = '';
 
 // ===== LOGIN =====
 function fazerLogin() {
-  const user    = document.getElementById('login-user').value.trim();
-  const pass    = document.getElementById('login-pass').value;
-  const erroEl  = document.getElementById('login-erro');
+  const user   = document.getElementById('login-user').value.trim();
+  const pass   = document.getElementById('login-pass').value;
+  const erroEl = document.getElementById('login-erro');
 
   const conta = UTILIZADORES.find(u => u.user === user && u.pass === pass);
 
@@ -30,8 +36,8 @@ function fazerLogin() {
     erroEl.style.display = 'none';
     document.getElementById('login-screen').style.display = 'none';
     const app = document.getElementById('app');
-    app.style.display    = 'flex';
-    app.style.minHeight  = '100vh';
+    app.style.display   = 'flex';
+    app.style.minHeight = '100vh';
     aplicarPermissoes();
     iniciarApp();
   } else {
@@ -53,17 +59,12 @@ function fazerLogout() {
 function isAdmin() { return nivelActual === 'admin'; }
 
 function aplicarPermissoes() {
-  // Badge na sidebar
   document.getElementById('admin-nome-sidebar').textContent =
     isAdmin() ? 'Augusto Tembe' : 'Atendente';
   document.getElementById('admin-nivel-sidebar').textContent =
     isAdmin() ? 'Administrador' : 'Atendente';
-
-  // Esconder botão Relatório para atendente
   document.getElementById('nav-relatorio').style.display =
     isAdmin() ? 'flex' : 'none';
-
-  // Esconder receita no dashboard para atendente
   document.getElementById('card-receita').style.display =
     isAdmin() ? 'flex' : 'none';
 }
@@ -73,20 +74,47 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('login-user').focus();
 });
 
-function iniciarApp() {
+async function iniciarApp() {
   document.getElementById('date-now').textContent =
     formatarDataHora(new Date());
   document.getElementById('inp-data').value =
     new Date().toISOString().slice(0, 10);
+
+  mostrarToast('⏳ A carregar dados...', 'success');
+  await carregarAlunos();
   atualizarDashboard();
   renderizarTabela();
   renderizarMensalidades();
   if (isAdmin()) renderizarRelatorio();
 }
 
+// ===== CARREGAR ALUNOS DO SUPABASE =====
+async function carregarAlunos() {
+  try {
+    const { data, error } = await db.from('alunos').select('*').order('id', { ascending: true });
+    if (error) throw error;
+
+    alunos = data.map(a => ({
+      ...a,
+      mesesPagos: JSON.parse(a.meses_pagos || '[]'),
+      valorInscricao: a.valor_inscricao,
+    }));
+
+    // Calcular próximo ID
+    if (alunos.length > 0) {
+      contadorId = Math.max(...alunos.map(a => {
+        const partes = a.id_texto ? a.id_texto.split('-') : ['0'];
+        return parseInt(partes[partes.length - 1]) || 0;
+      })) + 1;
+    }
+  } catch (err) {
+    console.error('Erro ao carregar alunos:', err);
+    mostrarToast('❌ Erro ao carregar dados!', 'error');
+  }
+}
+
 // ===== NAVEGAÇÃO =====
 function showPage(id) {
-  // Bloquear relatório para atendente
   if (id === 'relatorio' && !isAdmin()) {
     mostrarToast('🔒 Sem permissão para ver relatórios.', 'error');
     return;
@@ -112,15 +140,15 @@ function gerarId() {
 }
 
 // ===== REGISTAR ALUNO =====
-function registarAluno() {
-  const nome          = document.getElementById('inp-nome').value.trim();
-  const local         = document.getElementById('inp-local').value;
-  const curso         = document.getElementById('inp-curso').value;
-  const tel           = document.getElementById('inp-tel').value.trim();
-  const valorInscricao= parseFloat(document.getElementById('inp-valor-inscricao').value);
-  const mensalidade   = parseFloat(document.getElementById('inp-mensalidade').value);
-  const data          = document.getElementById('inp-data').value;
-  const obs           = document.getElementById('inp-obs').value.trim();
+async function registarAluno() {
+  const nome           = document.getElementById('inp-nome').value.trim();
+  const local          = document.getElementById('inp-local').value;
+  const curso          = document.getElementById('inp-curso').value;
+  const tel            = document.getElementById('inp-tel').value.trim();
+  const valorInscricao = parseFloat(document.getElementById('inp-valor-inscricao').value);
+  const mensalidade    = parseFloat(document.getElementById('inp-mensalidade').value);
+  const data           = document.getElementById('inp-data').value;
+  const obs            = document.getElementById('inp-obs').value.trim();
 
   if (!nome || !local || !curso || !valorInscricao || !mensalidade) {
     mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
@@ -128,46 +156,68 @@ function registarAluno() {
   }
 
   const agora = new Date();
-  const id    = gerarId();
+  const idTexto = gerarId();
+  const idNum   = Date.now();
 
-  const aluno = {
-    id: Date.now(),
-    idTexto: id,
-    nome, local, curso, tel,
-    valorInscricao, mensalidade,
-    data: data || agora.toISOString().slice(0, 10),
-    hora: agora.toTimeString().slice(0, 5),
-    dataHora: agora.toISOString(),
+  const novoAluno = {
+    id:             idNum,
+    id_texto:       idTexto,
+    nome,
+    local,
+    curso,
+    tel,
+    valor_inscricao: valorInscricao,
+    mensalidade,
+    data:           data || agora.toISOString().slice(0, 10),
+    hora:           agora.toTimeString().slice(0, 5),
+    data_hora:      agora.toISOString(),
     obs,
-    mesesPagos: [],
-    estado: 'pendente'
+    meses_pagos:    '[]',
+    estado:         'pendente'
   };
 
-  alunos.push(aluno);
-  contadorId++;
-  salvar();
-  limparForm();
-  atualizarDashboard();
-  mostrarToast('✅ Inscrição registada com sucesso!');
-  gerarRecibo(aluno);
+  try {
+    const { error } = await db.from('alunos').insert([novoAluno]);
+    if (error) throw error;
+
+    // Adicionar ao array local
+    alunos.push({
+      ...novoAluno,
+      valorInscricao,
+      mesesPagos: []
+    });
+    contadorId++;
+
+    limparForm();
+    atualizarDashboard();
+    renderizarTabela();
+    renderizarMensalidades();
+    mostrarToast('✅ Inscrição registada com sucesso!');
+    gerarRecibo({ ...novoAluno, valorInscricao, mesesPagos: [], idTexto });
+  } catch (err) {
+    console.error('Erro ao registar aluno:', err);
+    mostrarToast('❌ Erro ao registar! Tente novamente.', 'error');
+  }
 }
 
 // ===== RECIBO =====
 function gerarRecibo(aluno) {
+  const idTexto = aluno.idTexto || aluno.id_texto;
+  const valInsc = aluno.valorInscricao || aluno.valor_inscricao;
   const html = `
     <div class="recibo-titulo">🎓 Reforço Escolar — Tembe</div>
-    <div class="recibo-sub">Recibo de Inscrição · ${formatarDataHora(new Date(aluno.dataHora))}</div>
-    <div class="recibo-linha"><span>ID:</span><strong>${aluno.idTexto}</strong></div>
+    <div class="recibo-sub">Recibo de Inscrição · ${formatarDataHora(new Date(aluno.data_hora || aluno.dataHora))}</div>
+    <div class="recibo-linha"><span>ID:</span><strong>${idTexto}</strong></div>
     <div class="recibo-linha"><span>Nome:</span><strong>${aluno.nome}</strong></div>
     <div class="recibo-linha"><span>Local:</span><strong>${aluno.local}</strong></div>
     <div class="recibo-linha"><span>Curso / Classe:</span><strong>${aluno.curso}</strong></div>
     <div class="recibo-linha"><span>Telefone:</span><strong>${aluno.tel || '—'}</strong></div>
     <div class="recibo-linha"><span>Data de Inscrição:</span><strong>${aluno.data}</strong></div>
     <div class="recibo-linha"><span>Hora:</span><strong>${aluno.hora}</strong></div>
-    <div class="recibo-linha"><span>Valor de Inscrição:</span><strong>${formatarMt(aluno.valorInscricao)}</strong></div>
+    <div class="recibo-linha"><span>Valor de Inscrição:</span><strong>${formatarMt(valInsc)}</strong></div>
     <div class="recibo-linha"><span>Mensalidade Mensal:</span><strong>${formatarMt(aluno.mensalidade)}</strong></div>
     ${aluno.obs ? `<div class="recibo-linha"><span>Obs:</span><strong>${aluno.obs}</strong></div>` : ''}
-    <div class="recibo-total"><span>TOTAL PAGO HOJE</span><span>${formatarMt(aluno.valorInscricao)}</span></div>
+    <div class="recibo-total"><span>TOTAL PAGO HOJE</span><span>${formatarMt(valInsc)}</span></div>
   `;
   document.getElementById('recibo-conteudo').innerHTML = html;
   document.getElementById('modal-recibo').classList.add('open');
@@ -188,23 +238,22 @@ function limparForm() {
 
 // ===== DASHBOARD =====
 function atualizarDashboard() {
-  const totalPagos    = alunos.reduce((acc, a) => acc + a.mesesPagos.length, 0);
-  const totalPendentes= alunos.filter(a => a.mesesPagos.length === 0).length;
-  const receita       = alunos.reduce((acc, a) =>
-    acc + a.valorInscricao + (a.mesesPagos.length * a.mensalidade), 0);
+  const totalPagos     = alunos.reduce((acc, a) => acc + a.mesesPagos.length, 0);
+  const totalPendentes = alunos.filter(a => a.mesesPagos.length === 0).length;
+  const receita        = alunos.reduce((acc, a) =>
+    acc + (a.valorInscricao || a.valor_inscricao) + (a.mesesPagos.length * a.mensalidade), 0);
 
   document.getElementById('total-alunos').textContent    = alunos.length;
   document.getElementById('total-pagos').textContent     = totalPagos;
   document.getElementById('total-pendentes').textContent = totalPendentes;
   document.getElementById('total-receita').textContent   = formatarMt(receita);
 
-  // Resumo por local
   const dashLocais = document.getElementById('dash-locais');
   dashLocais.innerHTML = LOCAIS.map(local => {
     const lista        = alunos.filter(a => a.local === local);
     const receitaLocal = isAdmin()
       ? lista.reduce((acc, a) =>
-          acc + a.valorInscricao + (a.mesesPagos.length * a.mensalidade), 0)
+          acc + (a.valorInscricao || a.valor_inscricao) + (a.mesesPagos.length * a.mensalidade), 0)
       : null;
     return `
       <div class="local-card" style="border-left-color:${COR_LOCAIS[local]}">
@@ -214,27 +263,6 @@ function atualizarDashboard() {
       </div>
     `;
   }).join('');
-
-  // Tabela recentes
-  const tbody   = document.getElementById('tbody-recentes');
-  const recentes= [...alunos].reverse().slice(0, 6);
-  if (recentes.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;
-      color:var(--text-muted);padding:32px">Nenhuma inscrição ainda</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = recentes.map(a => `
-    <tr>
-      <td><code style="color:var(--accent);font-size:0.8rem">${a.idTexto}</code></td>
-      <td><strong>${a.nome}</strong></td>
-      <td>${a.curso}</td>
-      <td><span style="color:${COR_LOCAIS[a.local]||'#666'};font-weight:600">📍 ${a.local}</span></td>
-      <td style="font-size:0.82rem;color:var(--text-muted)">${a.data} ${a.hora}</td>
-      <td><span class="badge ${a.mesesPagos.length > 0 ? 'badge-pago' : 'badge-pendente'}">
-        ${a.mesesPagos.length > 0 ? 'Em dia' : 'Pendente'}
-      </span></td>
-    </tr>
-  `).join('');
 }
 
 // ===== TABELA ESTUDANTES =====
@@ -248,7 +276,7 @@ function renderizarTabela() {
   if (filtroLocal) lista = lista.filter(a => a.local === filtroLocal);
   if (busca)       lista = lista.filter(a =>
     a.nome.toLowerCase().includes(busca) ||
-    a.idTexto.toLowerCase().includes(busca));
+    (a.id_texto || a.idTexto || '').toLowerCase().includes(busca));
 
   const tbody = document.getElementById('tbody-matriculas');
   if (lista.length === 0) {
@@ -258,18 +286,19 @@ function renderizarTabela() {
   }
 
   tbody.innerHTML = lista.map(a => {
-    // Botão eliminar: só admin vê
+    const idTexto = a.id_texto || a.idTexto;
+    const valInsc = a.valor_inscricao || a.valorInscricao;
     const btnEliminar = isAdmin()
       ? `<button class="btn-icon danger" onclick="eliminarAluno(${a.id})" title="Eliminar">🗑️</button>`
       : '';
     return `
       <tr>
-        <td><code style="color:var(--accent);font-size:0.8rem">${a.idTexto}</code></td>
+        <td><code style="color:var(--accent);font-size:0.8rem">${idTexto}</code></td>
         <td><strong>${a.nome}</strong></td>
         <td>${a.curso}</td>
         <td><span style="color:${COR_LOCAIS[a.local]||'#666'};font-weight:600">${a.local}</span></td>
         <td>${a.tel || '—'}</td>
-        <td>${formatarMt(a.valorInscricao)}</td>
+        <td>${formatarMt(valInsc)}</td>
         <td>${formatarMt(a.mensalidade)}</td>
         <td style="font-size:0.8rem;color:var(--text-muted)">${a.data}<br>${a.hora}</td>
         <td>
@@ -284,18 +313,26 @@ function renderizarTabela() {
 
 function filtrarTabela() { renderizarTabela(); }
 
-function eliminarAluno(id) {
+async function eliminarAluno(id) {
   if (!isAdmin()) {
     mostrarToast('🔒 Sem permissão para eliminar.', 'error');
     return;
   }
   if (!confirm('Tem a certeza que deseja eliminar este estudante?')) return;
-  alunos = alunos.filter(a => a.id !== id);
-  salvar();
-  renderizarTabela();
-  atualizarDashboard();
-  renderizarMensalidades();
-  mostrarToast('🗑️ Estudante removido');
+
+  try {
+    const { error } = await db.from('alunos').delete().eq('id', id);
+    if (error) throw error;
+
+    alunos = alunos.filter(a => a.id !== id);
+    renderizarTabela();
+    atualizarDashboard();
+    renderizarMensalidades();
+    mostrarToast('🗑️ Estudante removido');
+  } catch (err) {
+    console.error('Erro ao eliminar:', err);
+    mostrarToast('❌ Erro ao eliminar!', 'error');
+  }
 }
 
 // ===== MENSALIDADES =====
@@ -312,10 +349,9 @@ function renderizarMensalidades() {
   }
 
   cont.innerHTML = lista.map(a => {
+    const valInsc = a.valor_inscricao || a.valorInscricao;
     const mesesHtml = MESES.map((mes, i) => {
       const pago = a.mesesPagos.includes(i);
-
-      // Atendente: mês já pago fica bloqueado (não pode desmarcar)
       if (pago && !isAdmin()) {
         return `<button class="mes-btn pago bloqueado" disabled
           title="Já pago — só o administrador pode alterar">
@@ -327,15 +363,16 @@ function renderizarMensalidades() {
         ${mes}</button>`;
     }).join('');
 
-    const totalPago     = a.mesesPagos.length * a.mensalidade + a.valorInscricao;
+    const totalPago     = a.mesesPagos.length * a.mensalidade + valInsc;
     const totalPendente = (12 - a.mesesPagos.length) * a.mensalidade;
+    const idTexto       = a.id_texto || a.idTexto;
 
     return `
       <div class="mensalidade-card">
         <div class="mc-header">
           <div>
             <div class="mc-nome">${a.nome}</div>
-            <div class="mc-matricula">${a.idTexto}</div>
+            <div class="mc-matricula">${idTexto}</div>
           </div>
           <div class="mc-valor">${formatarMt(a.mensalidade)}
             <span style="font-size:0.7rem;color:var(--text-muted)">/mês</span>
@@ -368,12 +405,11 @@ function renderizarMensalidades() {
   }).join('');
 }
 
-function toggleMes(id, mesIdx) {
+async function toggleMes(id, mesIdx) {
   const aluno = alunos.find(a => a.id === id);
   if (!aluno) return;
 
   if (aluno.mesesPagos.includes(mesIdx)) {
-    // Desmarcar: só admin pode
     if (!isAdmin()) {
       mostrarToast('🔒 Só o administrador pode desmarcar um mês já pago.', 'error');
       return;
@@ -385,9 +421,19 @@ function toggleMes(id, mesIdx) {
     mostrarToast(`✅ ${MESES[mesIdx]} marcado como pago!`);
   }
 
-  salvar();
-  renderizarMensalidades();
-  atualizarDashboard();
+  try {
+    const { error } = await db
+      .from('alunos')
+      .update({ meses_pagos: JSON.stringify(aluno.mesesPagos) })
+      .eq('id', id);
+    if (error) throw error;
+
+    renderizarMensalidades();
+    atualizarDashboard();
+  } catch (err) {
+    console.error('Erro ao actualizar mês:', err);
+    mostrarToast('❌ Erro ao guardar!', 'error');
+  }
 }
 
 // ===== RELATÓRIO =====
@@ -398,9 +444,9 @@ function renderizarRelatorio() {
     ? document.getElementById('filtro-local-rel').value : '';
   let lista = filtroLocal ? alunos.filter(a => a.local === filtroLocal) : alunos;
 
-  const totalInscritos          = lista.length;
-  const totalReceitaInscricoes  = lista.reduce((acc, a) => acc + a.valorInscricao, 0);
-  const totalReceitaMensalidades= lista.reduce((acc, a) =>
+  const totalInscritos           = lista.length;
+  const totalReceitaInscricoes   = lista.reduce((acc, a) => acc + (a.valor_inscricao || a.valorInscricao), 0);
+  const totalReceitaMensalidades = lista.reduce((acc, a) =>
     acc + a.mesesPagos.length * a.mensalidade, 0);
   const totalReceita  = totalReceitaInscricoes + totalReceitaMensalidades;
   const totalPendente = lista.reduce((acc, a) =>
@@ -413,25 +459,29 @@ function renderizarRelatorio() {
     const listaLocal   = lista.filter(a => a.local === local);
     if (listaLocal.length === 0) return;
     const receitaLocal = listaLocal.reduce((acc, a) =>
-      acc + a.valorInscricao + (a.mesesPagos.length * a.mensalidade), 0);
+      acc + (a.valor_inscricao || a.valorInscricao) + (a.mesesPagos.length * a.mensalidade), 0);
 
-    const linhas = listaLocal.map(a => `
-      <tr>
-        <td>${a.idTexto}</td>
-        <td>${a.nome}</td>
-        <td>${a.curso}</td>
-        <td>${formatarMt(a.valorInscricao)}</td>
-        <td>${a.mesesPagos.length}/12</td>
-        <td>${formatarMt(a.mesesPagos.length * a.mensalidade)}</td>
-        <td>${formatarMt((12 - a.mesesPagos.length) * a.mensalidade)}</td>
-        <td><span class="badge ${
-          a.mesesPagos.length >= 6 ? 'badge-pago' :
-          a.mesesPagos.length  > 0 ? 'badge-parcial' : 'badge-pendente'}">
-          ${a.mesesPagos.length >= 6 ? 'Em dia' :
-            a.mesesPagos.length  > 0 ? 'Parcial' : 'Pendente'}
-        </span></td>
-      </tr>
-    `).join('');
+    const linhas = listaLocal.map(a => {
+      const idTexto = a.id_texto || a.idTexto;
+      const valInsc = a.valor_inscricao || a.valorInscricao;
+      return `
+        <tr>
+          <td>${idTexto}</td>
+          <td>${a.nome}</td>
+          <td>${a.curso}</td>
+          <td>${formatarMt(valInsc)}</td>
+          <td>${a.mesesPagos.length}/12</td>
+          <td>${formatarMt(a.mesesPagos.length * a.mensalidade)}</td>
+          <td>${formatarMt((12 - a.mesesPagos.length) * a.mensalidade)}</td>
+          <td><span class="badge ${
+            a.mesesPagos.length >= 6 ? 'badge-pago' :
+            a.mesesPagos.length  > 0 ? 'badge-parcial' : 'badge-pendente'}">
+            ${a.mesesPagos.length >= 6 ? 'Em dia' :
+              a.mesesPagos.length  > 0 ? 'Parcial' : 'Pendente'}
+          </span></td>
+        </tr>
+      `;
+    }).join('');
 
     tabelasHtml += `
       <div class="rel-local-titulo" style="color:${COR_LOCAIS[local]}">
@@ -485,11 +535,6 @@ function formatarDataHora(data) {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
-}
-
-function salvar() {
-  localStorage.setItem('tembe_alunos',   JSON.stringify(alunos));
-  localStorage.setItem('tembe_contador', contadorId.toString());
 }
 
 function mostrarToast(msg, tipo = 'success') {
