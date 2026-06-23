@@ -33,6 +33,8 @@ function fazerLogin() {
 
   if (conta) {
     nivelActual = conta.nivel;
+    // ✅ GUARDAR SESSÃO NO sessionStorage
+    sessionStorage.setItem('sessao', JSON.stringify({ user: conta.user, nivel: conta.nivel }));
     erroEl.style.display = 'none';
     document.getElementById('login-screen').style.display = 'none';
     const app = document.getElementById('app');
@@ -49,6 +51,8 @@ function fazerLogin() {
 function fazerLogout() {
   if (!confirm('Tem a certeza que deseja sair?')) return;
   nivelActual = '';
+  // ✅ LIMPAR SESSÃO AO SAIR
+  sessionStorage.removeItem('sessao');
   document.getElementById('app').style.display          = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-user').value = '';
@@ -71,7 +75,20 @@ function aplicarPermissoes() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('login-user').focus();
+  // ✅ RESTAURAR SESSÃO AO FAZER REFRESH
+  const sessaoGuardada = sessionStorage.getItem('sessao');
+  if (sessaoGuardada) {
+    const sessao = JSON.parse(sessaoGuardada);
+    nivelActual = sessao.nivel;
+    document.getElementById('login-screen').style.display = 'none';
+    const app = document.getElementById('app');
+    app.style.display   = 'flex';
+    app.style.minHeight = '100vh';
+    aplicarPermissoes();
+    iniciarApp();
+  } else {
+    document.getElementById('login-user').focus();
+  }
 });
 
 async function iniciarApp() {
