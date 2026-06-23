@@ -63,8 +63,8 @@
       <span>💰</span> Mensalidades
     </button>
     <button class="nav-btn" onclick="showPage('retiradas')">
-  <span>💸</span> Retiradas
-</button>
+      <span>💸</span> Retiradas
+    </button>
     <button class="nav-btn" id="nav-relatorio" onclick="showPage('relatorio')">
       <span>📄</span> Relatório
     </button>
@@ -140,19 +140,19 @@
         <div class="form-group">
           <label>Curso / Classe *</label>
           <select id="inp-curso">
-          <option value="">-- Selecionar --</option>
-<option>1ª Classe</option>
-<option>2ª Classe</option>
-<option>3ª Classe</option>
-<option>4ª Classe</option>
-<option>5ª Classe</option>
-<option>6ª Classe</option>
-<option>7ª Classe</option>
-<option>8ª Classe</option>
-<option>9ª Classe</option>
-<option>10ª Classe</option>
-<option>11ª Classe</option>
-<option>12ª Classe</option>
+            <option value="">-- Selecionar --</option>
+            <option>1ª Classe</option>
+            <option>2ª Classe</option>
+            <option>3ª Classe</option>
+            <option>4ª Classe</option>
+            <option>5ª Classe</option>
+            <option>6ª Classe</option>
+            <option>7ª Classe</option>
+            <option>8ª Classe</option>
+            <option>9ª Classe</option>
+            <option>10ª Classe</option>
+            <option>11ª Classe</option>
+            <option>12ª Classe</option>
           </select>
         </div>
         <div class="form-group">
@@ -232,62 +232,43 @@
   </section>
 
   <!-- RETIRADAS -->
-<section id="page-retiradas" class="page">
-
-  <div class="page-header">
-    <h1>Controlo de Retiradas</h1>
-  </div>
-
-  <div class="form-card">
-
-    <div class="form-grid">
-
-      <div class="form-group">
-        <label>Valor Retirado (MT)</label>
-        <input type="number" id="retirada-valor">
-      </div>
-
-      <div class="form-group">
-        <label>Data</label>
-        <input type="date" id="retirada-data">
-      </div>
-
+  <section id="page-retiradas" class="page">
+    <div class="page-header">
+      <h1>Controlo de Retiradas</h1>
     </div>
-
-    <div class="form-group full">
-      <label>Descrição da Despesa</label>
-      <textarea id="retirada-motivo" rows="3"
-      placeholder="Ex: Compra de marcador"></textarea>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Valor Retirado (MT)</label>
+          <input type="number" id="retirada-valor">
+        </div>
+        <div class="form-group">
+          <label>Data</label>
+          <input type="date" id="retirada-data">
+        </div>
+      </div>
+      <div class="form-group full">
+        <label>Descrição da Despesa</label>
+        <textarea id="retirada-motivo" rows="3" placeholder="Ex: Compra de marcador"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="registarRetirada()">💸 Registar Retirada</button>
+      </div>
     </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-retiradas"></tbody>
+      </table>
+    </div>
+  </section>
 
-<div class="form-actions">
-  <button class="btn-primary" onclick="registarRetirada()">
-    💸 Registar Retirada
-  </button>
-</div>
-
-  </div>
-
-  <div class="table-wrap">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Valor</th>
-        </tr>
-      </thead>
-
-      <tbody id="tbody-retiradas">
-      </tbody>
-
-    </table>
-
-  </div>
-
-</section>
   <!-- RELATÓRIO -->
   <section id="page-relatorio" class="page">
     <div class="page-header">
@@ -322,8 +303,7 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
  
-<!-- ✅ LINHA ADICIONADA: biblioteca do Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>
